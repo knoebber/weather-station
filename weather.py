@@ -39,7 +39,7 @@ class WeatherData(NamedTuple):
     unix_timestamp: int
     update_period_seconds: int
     wind_direction_degrees: int
-    wind_speed_ms: float
+    wind_speed_mph: float
 
     def broadcast(self):
         post(get_purple_url() + '/api/weather_snapshots/broadcast', self._asdict())
@@ -54,7 +54,7 @@ def get_data():
         unix_timestamp=int(time.time()),
         update_period_seconds=UPDATE_PERIOD_SECONDS,
         wind_direction_degrees=int(sensor.wind_direction),
-        wind_speed_ms=round(sensor.wind_speed, PREC) or 0,
+        wind_speed_mph=round(sensor.wind_speed * 2.23693629, PREC) or 0,
     )
 
 def run():
