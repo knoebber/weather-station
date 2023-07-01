@@ -30,7 +30,7 @@ def post(url: str, payload: dict):
     json_str = json.dumps({'weather_snapshot': payload})
     request = Request(url, data=json_str.encode('utf-8'), method='POST')
     request.add_header('Content-Type', 'application/json')
-    request.add_header('X-purple-api-secret', os.getenv('PURPLE_API_SECRET'))
+    request.add_header('X-purple-api-secret', os.getenv('PURPLE_API_SECRET', 'fake-api-secret'))
     with urlopen(request) as response:
         logger.info(json.loads(response.read()))
 
