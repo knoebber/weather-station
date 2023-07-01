@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import json
+import logging
 import os
 import time
 
@@ -9,6 +10,8 @@ from urllib.request import Request
 from urllib.request import urlopen
 
 from weatherhat import WeatherHAT
+
+logger = logging.getLogger(__name__)
 
 UPDATE_PERIOD_SECONDS = 10
 PREC = 3
@@ -27,8 +30,9 @@ def post(url: str, payload: dict):
     json_str = json.dumps({'weather_snapshot': payload})
     request = Request(url, data=json_str.encode('utf-8'), method='POST')
     request.add_header('Content-Type', 'application/json')
+    request.add_header('X-purple-api-secret', os.getenv('PURPLE_API_SECRET'))
     with urlopen(request) as response:
-        print(json.loads(response.read()))
+        logger.info(json.loads(response.read()))
 
 class WeatherData(NamedTuple):
     humidity: float
@@ -65,7 +69,8 @@ def run():
             weather_data = get_data()
             weather_data.broadcast()
         except Exception as e:
-            print('failed to send', weather_data, e)
+            logger.error('failed to send %s', weather_data)
+            logger.exception(e)
         finally:
             time.sleep(1)
 
