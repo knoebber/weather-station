@@ -87,16 +87,19 @@ def run():
         else:
             fail_count = 0
         finally:
-            if fail_count > 60:
+            if fail_count == 0:
+                # expected - sleep for a bit and then rebroadcast
+                time.sleep(BROADCAST_INTERVAL_SECONDS)
+            elif fail_count < 60:
+                # simple backoff logic so that it can wait out downtime caused by deploy/etc
+                backoff_seconds = fail_count*10
+                logger.error('backing off for %s seconds', backoff_seconds)
+                time.sleep(backoff_seconds)
+            else:
                 # prevent this program from getting stuck in an infinite error loop
                 logger.error('received too many errors: exiting')
                 exit(1)
-            else:
-                if fail_count == 0:
-                    time.sleep(BROADCAST_INTERVAL_SECONDS)
-                else:
-                    # simple backoff logic so that it can wait out downtime caused by deploy/etc.
-                    time.sleep(fail_count*10 if fail_count else 1)
 
 if __name__ == '__main__':
     run()
+
